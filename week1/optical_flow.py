@@ -63,7 +63,7 @@ def plot_optical_flow_field(img_path, flow):
     U, V = np.meshgrid(X, Y)
 
     q = plt.quiver(U, V, flow[0][::step, ::step], flow[1][::step, ::step], np.hypot(U, V))
-    q.show()
+    plt.show()
 
 def plot_error_distance(error_dis):
     plt.figure(figsize=(9, 3))
