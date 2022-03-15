@@ -1,4 +1,5 @@
 import cv2
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -55,8 +56,10 @@ def plot_error_distance(error_dis):
     plt.imshow(error_dis)
 
 def plot_error_distribution_hist(error_dis, gt_flow):
+    max_range = int(math.ceil(np.amax(error_dis)))
+
     plt.title('Error distribution')
     plt.ylabel('Density')
     plt.xlabel('Error distance')
-    plt.hist(error_dis[gt_flow[2] == 1].ravel(), bins=60, range=(0.0, 60.0))
+    plt.hist(error_dis[gt_flow[2] == 1].ravel(), bins=30, range=(0.0, max_range))
 
