@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import random
 
 #############################################################################################################
 # Code extracted from detectron2
@@ -40,38 +41,21 @@ def voc_ap(rec, prec, use_07_metric=True):
 
 
 def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
-    """rec, prec, ap = voc_eval(detpath,
-                                annopath,
-                                imagesetfile,
-                                classname,
+    """rec, prec, ap, tp_detections = voc_eval(gt,
+                                detections,
                                 [ovthresh],
-                                [use_07_metric])
+                                [use_conf])
     Top level function that does the PASCAL VOC evaluation.
-    detpath: Path to detections
-        detpath.format(classname) should produce the detection results file.
-    annopath: Path to annotations
-        annopath.format(imagename) should be the xml annotations file.
-    imagesetfile: Text file containing the list of images, one image per line.
-    classname: Category name (duh)
+    gt: ground truth annotations
+    detections: estiamted detections.
     [ovthresh]: Overlap threshold (default = 0.5)
-    [use_07_metric]: Whether to use VOC07's 11 point AP computation
+    [use_conf]: Whether to use confidence or not
         (default False)
     """
-    # assumes detections are in detpath.format(classname)
-    # assumes annotations are in annopath.format(imagename)
-    # assumes imagesetfile is a text file with each line an image name
-
-    # first load gt
-    # read list of images
-
-
-    # load annots
-
-
     # extract gt objects for this class
     class_recs = {}
     npos = 0
-    image_ids, confidence, BB = [], [], []
+    image_ids, confidence, BB, all_detect = [], [], [], []
     for frame, gt_ds in gt.items():
         #GT data
         bbox = np.array([gt_d.getBBox() for gt_d in gt_ds])
@@ -81,10 +65,17 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
 
         #Deected data
         detected = detections[frame]
+        all_detect = [*all_detect, *detected]
+
+        #Frame of boxes
         idsAux = [frame] * len(detected)
         image_ids = [*image_ids, *idsAux]
+
+        #Computed confidence
         confAux = [d.conf for d in detected]
         confidence = [*confidence, *confAux]
+
+        #Detected bounding boxes
         BBAux = [d.getBBox() for d in detected]
         BB = [*BB, *BBAux]
 
@@ -96,11 +87,13 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
         sorted_ind = np.argsort(-confidence)
         BB = BB[sorted_ind, :]
         image_ids = [image_ids[x] for x in sorted_ind]
+        all_detect = [all_detect[x] for x in sorted_ind]
 
     # go down dets and mark TPs and FPs
     nd = len(image_ids)
     tp = np.zeros(nd)
     fp = np.zeros(nd)
+    tpDetections = {}
     for d in range(nd):
         R = class_recs[image_ids[d]]
         bb = BB[d, :].astype(float)
@@ -133,6 +126,9 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
             if not R["det"][jmax]:
                 tp[d] = 1.0
                 R["det"][jmax] = 1
+                if image_ids[d] not in tpDetections:
+                    tpDetections[image_ids[d]] = []
+                tpDetections[image_ids[d]].append(all_detect[d])
             else:
                 fp[d] = 1.0
         else:
@@ -147,7 +143,25 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
     ap = voc_ap(rec, prec)
 
-    return rec, prec, ap
+    return rec, prec, ap, tpDetections
+
+
+def randomizeFrameBoxes(frames):
+    for frame, ds in frames.items():
+        random.shuffle(ds)
+        frames[frame] = ds
+    
+    return frames
+
+def ap_wo_conf(gt, detections, N=10 ,ovthresh=0.5):
+    recs, precs, aps = [], [], []
+    for i in range(N):
+        rec, prec, ap, tp = voc_eval(gt, randomizeFrameBoxes(detections), ovthresh)
+        recs.append(rec)
+        precs.append(prec)
+        aps.append(ap)
+
+    return recs, precs, aps
 
 def plot_prec_recall_curve(prec, rec, title='Precision-Recall curve'):
     # plotting the points
@@ -160,6 +174,24 @@ def plot_prec_recall_curve(prec, rec, title='Precision-Recall curve'):
     
     # giving a title to my graph
     plt.title(title)
+    
+    # function to show the plot
+    plt.show()
+
+def plot_multiple_prec_recall_curves(precs, recs, labels, title='Precision-Recall curve'):
+    for ind, rec in enumerate(recs):
+        # plotting the points
+        plt.plot(rec, precs[ind], label=labels[ind])
+    
+    # naming the x axis
+    plt.xlabel('Recall')
+    # naming the y axis
+    plt.ylabel('Precision')
+    
+    # giving a title to my graph
+    plt.title(title)
+    
+    plt.legend()
     
     # function to show the plot
     plt.show()
