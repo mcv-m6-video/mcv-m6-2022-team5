@@ -46,7 +46,7 @@ def generate_videoBB_comparison(videoPath, gt, predicted, videoName='videoBoundi
         sucess, image = vidcap.read()
         if not sucess:
             break
-        elif frame >= initialFrame or frame <= lastFrame:
+        elif frame >= initialFrame and frame <= lastFrame:
             if str(frame) in gt:
                 color = (0,255,0)
                 image = drawBoxes(image, gt[str(frame)], color)
@@ -54,9 +54,11 @@ def generate_videoBB_comparison(videoPath, gt, predicted, videoName='videoBoundi
                 if str(frame) in predicted:
                     color = (255,0,0)
                     image = drawBoxes(image, predicted[str(frame)], color)
-                
+                print('frame number:', frame)
                 ims.append(Image.fromarray(image))
-
+        elif frame > lastFrame:
+            break
+    print('frames',len(ims))
     frame_one = ims[0]
     frame_one.save(videoName + ".gif", format="GIF", append_images=ims,
                save_all=True, duration=30, loop=0)
