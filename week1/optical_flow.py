@@ -1,5 +1,6 @@
 import cv2
 import math
+import imageio
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -50,13 +51,12 @@ def plot_optical_flow(flow):
     plt.show()
 
 # plot optical flow
-def plot_optical_flow_field(img_path, flow):
+def plot_optical_flow_field(img_path, flow, step=20):
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     plt.figure(figsize=(18,6))
     plt.imshow(img)
 
     h, w = flow[0].shape
-    step = 20
 
     X = np.arange(0, w, step)
     Y = np.arange(0, h, step)
@@ -78,4 +78,10 @@ def plot_error_distribution_hist(error_dis, gt_flow):
     plt.ylabel('Density')
     plt.xlabel('Mean square error')
     plt.hist(error_dis[gt_flow[2] == 1].ravel(), bins=30, range=(0.0, max_range))
+
+def generate_motion_gif(filenames, save_path):
+    with imageio.get_writer(save_path, mode='I') as writer:
+        for filename in filenames:
+            image = imageio.imread(filename)
+            writer.append_data(image)
 
