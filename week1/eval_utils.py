@@ -95,6 +95,7 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     tp = np.zeros(nd)
     fp = np.zeros(nd)
     tpDetections = {}
+    IoU_tp = {}
     for d in range(nd):
         R = class_recs[image_ids[d]]
         bb = BB[d, :].astype(float)
@@ -129,7 +130,9 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
                 R["det"][jmax] = 1
                 if image_ids[d] not in tpDetections:
                     tpDetections[image_ids[d]] = []
+                    IoU_tp[image_ids[d]] = []
                 tpDetections[image_ids[d]].append(all_detect[d])
+                IoU_tp[image_ids[d]].append(ovmax)
             else:
                 fp[d] = 1.0
         else:
@@ -144,7 +147,7 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
     ap = voc_ap(rec, prec)
 
-    return rec, prec, ap, tpDetections
+    return rec, prec, ap, tpDetections, IoU_tp
 
 
 def randomizeFrameBoxes(frames):
@@ -157,7 +160,7 @@ def randomizeFrameBoxes(frames):
 def ap_wo_conf(gt, detections, N=10 ,ovthresh=0.5):
     recs, precs, aps = [], [], []
     for i in range(N):
-        rec, prec, ap, tp = voc_eval(gt, randomizeFrameBoxes(detections), ovthresh)
+        rec, prec, ap, tp, iou = voc_eval(gt, randomizeFrameBoxes(detections), ovthresh)
         recs.append(rec)
         precs.append(prec)
         aps.append(ap)
