@@ -49,6 +49,22 @@ def plot_optical_flow(flow):
     plt.tight_layout()
     plt.show()
 
+# plot optical flow
+def plot_optical_flow_field(img_path, flow):
+    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+    plt.figure(figsize=(18,6))
+    plt.imshow(img)
+
+    h, w = flow[0].shape
+    step = 20
+
+    X = np.arange(0, w, step)
+    Y = np.arange(0, h, step)
+    U, V = np.meshgrid(X, Y)
+
+    q = plt.quiver(U, V, flow[0][::step, ::step], flow[1][::step, ::step], np.hypot(U, V))
+    q.show()
+
 def plot_error_distance(error_dis):
     plt.figure(figsize=(9, 3))
     plt.title('Error distance')
