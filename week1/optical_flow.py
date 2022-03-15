@@ -20,9 +20,9 @@ def load_flow(path):
   v_flow = -(flow[:,:,1] - 2**15)/ 64
   b_valid = flow[:,:,0]
 
-  # remove invalid points
-  u_flow[b_valid == 0] = 0
-  v_flow[b_valid == 0] = 0
+  # # remove invalid points
+  # u_flow[b_valid == 0] = 0
+  # v_flow[b_valid == 0] = 0
 
   flow = [u_flow, v_flow, b_valid]
   return flow
@@ -67,15 +67,15 @@ def plot_optical_flow_field(img_path, flow):
 
 def plot_error_distance(error_dis):
     plt.figure(figsize=(9, 3))
-    plt.title('Error distance')
+    plt.title('Square error visualised')
     plt.imshow(error_dis)
     plt.colorbar()
 
 def plot_error_distribution_hist(error_dis, gt_flow):
     max_range = int(math.ceil(np.amax(error_dis)))
 
-    plt.title('Error distribution')
+    plt.title('Mean square error distribution')
     plt.ylabel('Density')
-    plt.xlabel('Error distance')
+    plt.xlabel('Mean square error')
     plt.hist(error_dis[gt_flow[2] == 1].ravel(), bins=30, range=(0.0, max_range))
 
