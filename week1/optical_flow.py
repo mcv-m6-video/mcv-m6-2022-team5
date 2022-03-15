@@ -18,7 +18,7 @@ def load_flow(path):
   flow = cv2.imread(path, cv2.IMREAD_UNCHANGED).astype(np.double)
 
   u_flow = (flow[:,:,2] - 2**15)/ 64
-  v_flow = -(flow[:,:,1] - 2**15)/ 64
+  v_flow = (flow[:,:,1] - 2**15)/ 64
   b_valid = flow[:,:,0]
 
   # # remove invalid points
@@ -51,7 +51,7 @@ def plot_optical_flow(flow):
     plt.show()
 
 # plot optical flow
-def plot_optical_flow_field(img_path, flow, step=20):
+def plot_optical_flow_field(img_path, flow, step=20, scale=0.1):
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     plt.figure(figsize=(18,6))
     plt.imshow(img)
@@ -62,7 +62,10 @@ def plot_optical_flow_field(img_path, flow, step=20):
     Y = np.arange(0, h, step)
     U, V = np.meshgrid(X, Y)
 
-    q = plt.quiver(U, V, flow[0][::step, ::step], flow[1][::step, ::step], np.hypot(U, V))
+    u_flow = flow[0][::step, ::step]
+    v_flow = flow[1][::step, ::step]
+
+    plt.quiver(U, V, u_flow, v_flow, np.hypot(u_flow, v_flow),scale_units='xy', angles='xy', scale=scale)
     plt.show()
 
 def plot_error_distance(error_dis):
