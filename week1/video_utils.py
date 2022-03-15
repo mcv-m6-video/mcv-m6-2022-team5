@@ -54,7 +54,7 @@ def generate_videoBB_comparison(videoPath, gt, predicted, videoName='videoBoundi
                 if str(frame) in predicted:
                     color = (255,0,0)
                     image = drawBoxes(image, predicted[str(frame)], color)
-                print('frame number:', frame)
+                # print('frame number:', frame)
                 ims.append(Image.fromarray(image))
         elif frame > lastFrame:
             break

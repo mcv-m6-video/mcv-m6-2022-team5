@@ -3,16 +3,22 @@ import cv2
 
 #Class to represent vehicle detections
 class VehicleDetection:
-    def __init__(self, frame, ID, left, top, width, height, conf):
+    def __init__(self, frame, ID, left, top, width, height, conf, right=None, bot=None):
         self.frame = frame
         self.ID   = ID
         self.xtl  = left
         self.ytl  = top
-        self.xbr  = left + width
-        self.ybr  = top + height
+        if right is not None and bot is not None:
+            self.xbr  = right
+            self.ybr  = bot
+            self.w = abs(left - right)
+            self.h = abs(top - bot)
+        else:
+            self.xbr  = left + width
+            self.ybr  = top + height
+            self.w = width
+            self.h = height
         self.conf = conf
-        self.w = width
-        self.h = height
 
     def drawRectangleOnImage(self, img, color=(0, 255, 0)):
         cv2.rectangle(img, (self.xtl, self.ytl), (self.xbr, self.ybr), color)

@@ -63,21 +63,22 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
         npos = npos + len(gt_ds)
         class_recs[frame] = {"bbox": bbox, "det": det}
 
-        #Deected data
-        detected = detections[frame]
-        all_detect = [*all_detect, *detected]
+        if frame in detections:
+            #Deected data
+            detected = detections[frame]
+            all_detect = [*all_detect, *detected]
 
-        #Frame of boxes
-        idsAux = [frame] * len(detected)
-        image_ids = [*image_ids, *idsAux]
+            #Frame of boxes
+            idsAux = [frame] * len(detected)
+            image_ids = [*image_ids, *idsAux]
 
-        #Computed confidence
-        confAux = [d.conf for d in detected]
-        confidence = [*confidence, *confAux]
+            #Computed confidence
+            confAux = [d.conf for d in detected]
+            confidence = [*confidence, *confAux]
 
-        #Detected bounding boxes
-        BBAux = [d.getBBox() for d in detected]
-        BB = [*BB, *BBAux]
+            #Detected bounding boxes
+            BBAux = [d.getBBox() for d in detected]
+            BB = [*BB, *BBAux]
 
     confidence = np.array(confidence)
     BB = np.array(BB).reshape(-1, 4)
