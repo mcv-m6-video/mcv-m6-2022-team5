@@ -68,8 +68,8 @@ def plot_optical_flow_field(img_path, flow):
 def plot_error_distance(error_dis):
     plt.figure(figsize=(9, 3))
     plt.title('Error distance')
-    plt.colorbar()
     plt.imshow(error_dis)
+    plt.colorbar()
 
 def plot_error_distribution_hist(error_dis, gt_flow):
     max_range = int(math.ceil(np.amax(error_dis)))
