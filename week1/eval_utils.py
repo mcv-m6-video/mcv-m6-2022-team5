@@ -131,12 +131,12 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
             if image_ids[d] not in tpDetections:
                 tpDetections[image_ids[d]] = []
                 IoU[image_ids[d]] = []
-                if ovmax > ovthresh:
-                    IoU_tp[image_ids[d]] = []
+                # if ovmax > ovthresh:
+                    # IoU_tp[image_ids[d]] = []
             tpDetections[image_ids[d]].append(all_detect[d])
             IoU[image_ids[d]].append(ovmax)
-            if ovmax > ovthresh:
-                IoU_tp[image_ids[d]].append(ovmax)
+            # if ovmax > ovthresh:
+                # IoU_tp[image_ids[d]].append(ovmax)
         else:
             fp[d] = 1.0
  
