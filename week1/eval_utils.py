@@ -126,34 +126,22 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
             jmax = np.argmax(overlaps)
 
         if not R["det"][jmax]:
-            tp[d] = 1.0
-            R["det"][jmax] = 1
-            if image_ids[d] not in tpDetections:
-                tpDetections[image_ids[d]] = []
+            if image_ids[d] not in IoU:
                 IoU[image_ids[d]] = []
-                # if ovmax > ovthresh:
-                    # IoU_tp[image_ids[d]] = []
-            tpDetections[image_ids[d]].append(all_detect[d])
             IoU[image_ids[d]].append(ovmax)
-            # if ovmax > ovthresh:
-                # IoU_tp[image_ids[d]].append(ovmax)
+        if ovmax > ovthresh:
+            if not R["det"][jmax]:
+                tp[d] = 1.0
+                R["det"][jmax] = 1
+                if image_ids[d] not in tpDetections:
+                    tpDetections[image_ids[d]] = []
+                    IoU_tp[image_ids[d]] = []
+                tpDetections[image_ids[d]].append(all_detect[d])
+                IoU_tp[image_ids[d]].append(ovmax)
+            else:
+                fp[d] = 1.0
         else:
             fp[d] = 1.0
- 
-        
-        # if ovmax > ovthresh:
-        #     if not R["det"][jmax]:
-        #         tp[d] = 1.0
-        #         R["det"][jmax] = 1
-        #         if image_ids[d] not in tpDetections:
-        #             tpDetections[image_ids[d]] = []
-        #             IoU_tp[image_ids[d]] = []
-        #         tpDetections[image_ids[d]].append(all_detect[d])
-        #         IoU_tp[image_ids[d]].append(ovmax)
-        #     else:
-        #         fp[d] = 1.0
-        # else:
-        #     fp[d] = 1.0
 
     # compute precision recall
     fp = np.cumsum(fp)
@@ -164,7 +152,32 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
     ap = voc_ap(rec, prec)
 
-    return rec, prec, ap, tpDetections, IoU, IoU_tp
+    return rec, prec, ap, tpDetections, IoU_tp, IoU
+
+
+def video_IoU(gt, detections):
+    mIoUPerFrame = {}
+    count = []
+
+    # Iterate all frames
+    for frame_num, boxes in gt.items():
+        # Get data from frame number: frame_num
+        if frame_num in detections:
+            frames_data = detections[frame_num]
+            scores = []
+            # Compare GT VehicleDetection to the Predicted
+            for frame_gt in boxes:
+                box_iou = []
+                for frame_data in frames_data:
+                    # Double for because some frames_data contains +1 VehicleDetection
+                    iou = frame_gt.IoU(frame_data)
+                    box_iou.append(iou)
+                scores.append(np.max(box_iou))
+            mIoUPerFrame[frame_num] = np.mean(scores)
+            count.append(mIoUPerFrame[frame_num])
+
+    mIoU = np.mean(count)
+    return mIoU, mIoUPerFrame
 
 
 def randomizeFrameBoxes(frames):
