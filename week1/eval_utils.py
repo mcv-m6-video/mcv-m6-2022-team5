@@ -96,6 +96,7 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     fp = np.zeros(nd)
     tpDetections = {}
     IoU_tp = {}
+    IoU = {}
     for d in range(nd):
         R = class_recs[image_ids[d]]
         bb = BB[d, :].astype(float)
@@ -124,19 +125,35 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
             ovmax = np.max(overlaps)
             jmax = np.argmax(overlaps)
 
-        if ovmax > ovthresh:
-            if not R["det"][jmax]:
-                tp[d] = 1.0
-                R["det"][jmax] = 1
-                if image_ids[d] not in tpDetections:
-                    tpDetections[image_ids[d]] = []
+        if not R["det"][jmax]:
+            tp[d] = 1.0
+            R["det"][jmax] = 1
+            if image_ids[d] not in tpDetections:
+                tpDetections[image_ids[d]] = []
+                IoU[image_ids[d]] = []
+                if ovmax > ovthresh:
                     IoU_tp[image_ids[d]] = []
-                tpDetections[image_ids[d]].append(all_detect[d])
+            tpDetections[image_ids[d]].append(all_detect[d])
+            IoU[image_ids[d]].append(ovmax)
+            if ovmax > ovthresh:
                 IoU_tp[image_ids[d]].append(ovmax)
-            else:
-                fp[d] = 1.0
         else:
             fp[d] = 1.0
+ 
+        
+        # if ovmax > ovthresh:
+        #     if not R["det"][jmax]:
+        #         tp[d] = 1.0
+        #         R["det"][jmax] = 1
+        #         if image_ids[d] not in tpDetections:
+        #             tpDetections[image_ids[d]] = []
+        #             IoU_tp[image_ids[d]] = []
+        #         tpDetections[image_ids[d]].append(all_detect[d])
+        #         IoU_tp[image_ids[d]].append(ovmax)
+        #     else:
+        #         fp[d] = 1.0
+        # else:
+        #     fp[d] = 1.0
 
     # compute precision recall
     fp = np.cumsum(fp)
@@ -147,7 +164,7 @@ def voc_eval(gt, detections, ovthresh=0.5, use_conf=False):
     prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
     ap = voc_ap(rec, prec)
 
-    return rec, prec, ap, tpDetections, IoU_tp
+    return rec, prec, ap, tpDetections, IoU, IoU_tp
 
 
 def randomizeFrameBoxes(frames):
