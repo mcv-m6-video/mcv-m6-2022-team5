@@ -190,7 +190,7 @@ def randomizeFrameBoxes(frames):
 def ap_wo_conf(gt, detections, N=10 ,ovthresh=0.5):
     recs, precs, aps = [], [], []
     for i in range(N):
-        rec, prec, ap, tp, iou = voc_eval(gt, randomizeFrameBoxes(detections), ovthresh)
+        rec, prec, ap, tpDetections, IoU_tp, IoU = voc_eval(gt, randomizeFrameBoxes(detections), ovthresh)
         recs.append(rec)
         precs.append(prec)
         aps.append(ap)
