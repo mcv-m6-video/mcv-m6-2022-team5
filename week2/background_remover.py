@@ -52,14 +52,14 @@ def remove_background_adaptative(means, stds, videoPath, alpha=4, sigma=2, p=0.1
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
             cleaned = cleanMask(img_mask, 7)
-            cv2.imwrite(f'./masks/mask_{frame}.png', cleaned)
+            cv2.imwrite(f'./masks_adaptative/mask_{frame}.png', cleaned)
 
             #update mean and std
             idxs = cleaned == 0
             means[idxs] = p * img_gray[idxs] + (1 - p) * means[idxs]
-            stds[idxs] = np.sqrt(p * (img_gray[idxs] - means[idxs])**2 + (1 - p) * stds**2)
+            stds[idxs] = np.sqrt(p * (img_gray[idxs] - means[idxs])**2 + (1 - p) * stds[idxs]**2)
 
-            detections[str(frame)] = getBoxesFromMask(f'./masks/mask_{frame}.png',cleaned)
+            detections[str(frame)] = getBoxesFromMask(cleaned)
 
     return detections
 
@@ -76,5 +76,6 @@ def get_background_stats(videoPath, initFrame=1, lastFrame=514):
         ims[frame,:,:] = (cv2.cvtColor(image, cv2.COLOR_BGR2GRAY))
 
     means = np.mean(ims, axis=0)
+    # means = np.median(ims, axis=0)
     stds = np.std(ims, axis=0)
     return means, stds
