@@ -95,3 +95,26 @@ def get_background_stats(videoPath, initFrame=1, lastFrame=514):
     # means = np.median(ims, axis=0)
     stds = np.std(ims, axis=0)
     return means, stds
+
+
+def get_background_stats_color(videoPath, initFrame=1, lastFrame=514, color=cv2.COLOR_BGR2RGB):
+    vidcap = cv2.VideoCapture(videoPath)
+    _, image = vidcap.read()
+
+    ims_for_stats = lastFrame - initFrame + 1
+    ims = np.zeros((ims_for_stats, image.shape[0], image.shape[1], 3), dtype = "float32")
+
+    ims[0,:,:,:] = cv2.cvtColor(image, color)
+    for frame in tqdm(range(initFrame, lastFrame)):
+        _, image = vidcap.read()
+        ims[frame,:,:,:] = (cv2.cvtColor(image, color))
+
+    means_C1 = np.mean(ims[:,:,:,0], axis=0)
+    means_C2 = np.mean(ims[:,:,:,1], axis=0)
+    means_C3 = np.mean(ims[:,:,:,2], axis=0)
+
+    stds_C1 = np.std(ims[:,:,:,0], axis=0)
+    stds_C2 = np.std(ims[:,:,:,1], axis=0)
+    stds_C3 = np.std(ims[:,:,:,2], axis=0)
+
+    return [means_C1,means_C2,means_C3], [stds_C1,stds_C2,stds_C3]
