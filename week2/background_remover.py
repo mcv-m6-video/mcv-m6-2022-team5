@@ -12,26 +12,24 @@ def opening(mask, kernel_w=3, kernel_h=3):
     return cv2.morphologyEx(mask, cv2.MORPH_OPEN, element)
 
 def getBoxesFromMask(mask):
-    output = cv2.connectedComponentsWithStats(np.uint8(mask), 8, cv2.CV_32S)
-    (numLabels, labels, boxes, centroids) = output
+    counts, hier = cv2.findContours(mask, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
     detectedElems = []
-    for box in boxes[1:]: #First box is always the background
-        if box[4] > 500: #Try to do a better estimation of the minimunm size
-            b = VehicleDetection(0, -1, float(box[0]), float(box[1]), float(box[2]), float(box[3]), float(-1))
+    for cont in counts: #First box is always the background
+        x,y,w,h = cv2.boundingRect(cont)
+        if w*h > 700: #Try to do a better estimation of the minimunm size
+            b = VehicleDetection(0, -1, float(x), float(y), float(w), float(h), float(-1))
             detectedElems.append(b)
 
     return detectedElems
 
 def cleanMask(mask, roi):
-    cleaned = opening(mask, 5, 5) #initial removal of small noise
-    cleaned = closing(cleaned, 2, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
-    cleaned = opening(cleaned, 40, 5) #removal of thin erroneous vertical lines
-    cleaned = closing(cleaned, 100, 100) #filling of gaps
-    # cleaned = opening(cleaned, 20, 60) #removing shadows and similars [REVISE]
+    roi_applied = cv2.bitwise_and(mask, roi)
+    cleaned = opening(roi_applied, 5, 5) #initial removal of small noise
+    cleaned = closing(cleaned, 50, 20) #horizontal filling of areas [SWITCH TO HORIZONTAL?]
+    cleaned = closing(cleaned, 20, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
+    cleaned = opening(cleaned, 7, 7)
 
-    roi_applied = cv2.bitwise_and(cleaned, roi)
-
-    return roi_applied
+    return cleaned
 
 
 def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2):

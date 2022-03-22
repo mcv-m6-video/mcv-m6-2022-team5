@@ -29,6 +29,17 @@ def readDetectionsXML(path):
     return detections
 
 
+def getNotParkedCars(detections):
+    notParked = {}
+    for frame, objs in detections.items():
+        obj_notParked = []
+        for ob in objs:
+            if not ob.parked:
+                obj_notParked.append(ob)
+        if len(obj_notParked) > 0:
+            notParked[frame] = obj_notParked
+    return notParked
+
 
 def readDetections(path):
   #Generates detection dictionary where the frame number is the key and the values are the info of the corresponding detection/s
