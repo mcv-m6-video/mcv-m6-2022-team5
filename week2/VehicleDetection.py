@@ -19,6 +19,9 @@ class VehicleDetection:
             self.w = width
             self.h = height
         self.conf = conf
+    
+    def setParked(self, parked):
+        self.parked = parked
 
     def drawRectangleOnImage(self, img, color=(0, 255, 0)):
         cv2.rectangle(img, (self.xtl, self.ytl), (self.xbr, self.ybr), color)

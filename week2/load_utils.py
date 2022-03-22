@@ -1,7 +1,7 @@
 import xmltodict
 from VehicleDetection import VehicleDetection
 
-def readDetectionsXML(path, parked=True):
+def readDetectionsXML(path):
   #Generates detection dictionary where the frame number is the key and the values are the info of the corresponding detection/s
   
     with open(path,"r") as xml_obj:
@@ -17,10 +17,14 @@ def readDetectionsXML(path, parked=True):
             for deteccion in track['box']:
                 if deteccion['@frame'] not in detections:
                     detections[deteccion['@frame']] = []
-                if parked or (not parked and deteccion['attribute']['@name'] == 'parked' and deteccion['attribute']['#text'] == 'false'):
-                    detections[deteccion['@frame']].append(VehicleDetection(int(deteccion['@frame']), int(track['@id']), 
-                                                            float(deteccion['@xtl']), float(deteccion['@ytl']), 0, 0, 
-                                                            1.0, float(deteccion['@xbr']), float(deteccion['@ybr'])))
+                vh = VehicleDetection(int(deteccion['@frame']), int(track['@id']), 
+                                                        float(deteccion['@xtl']), float(deteccion['@ytl']), 0, 0, 
+                                                        1.0, float(deteccion['@xbr']), float(deteccion['@ybr']))
+                if deteccion['attribute']['@name'] == 'parked' and deteccion['attribute']['#text'] == 'false':
+                    vh.setParked(False)
+                else:
+                    vh.setParked(True)
+                detections[deteccion['@frame']].append(vh)
 
     return detections
 

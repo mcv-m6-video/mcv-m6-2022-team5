@@ -66,7 +66,7 @@ def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma
         _, image = vidcap.read()
         if frame >= num_frames // 4:
             img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            img_mask = np.zeros(img_gray.shape)
+            img_mask = np.zeros(img_gray.shape, dtype=np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
             cleaned = cleanMask(img_mask, roi)
