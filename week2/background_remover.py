@@ -22,7 +22,9 @@ def getBoxesFromMask(mask):
 
     return detectedElems
 
-def remove_background(means, stds, videoPath, alpha=4, sigma=2, kernelMorph=5):
+def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2, kernelMorph=5):
+    roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
+    
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
     detections = {}
@@ -30,11 +32,15 @@ def remove_background(means, stds, videoPath, alpha=4, sigma=2, kernelMorph=5):
         _, image = vidcap.read()
         if frame >= num_frames // 4:
             img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            img_mask = np.zeros(img_gray.shape)
+            
+            img_mask = np.zeros(img_gray.shape, dtype = np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
             cleaned = cleanMask(img_mask, 7)
-            cv2.imwrite(f'./masks/mask_{frame}.png', cleaned)
+
+            roi_applied = cv2.bitwise_and(cleaned, roi)
+
+            cv2.imwrite(f'./masks/mask_{frame}.png', roi_applied)
 
             detections[str(frame)] = getBoxesFromMask(cleaned)
 
