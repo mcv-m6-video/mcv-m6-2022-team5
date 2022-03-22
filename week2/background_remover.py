@@ -68,15 +68,15 @@ def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2):
             cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
 
     return detections
-    
+
 
 def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma=2, p=0.04):
     roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    meansV = means
-    stdsV = stds
+    meansV = means[:]
+    stdsV = stds[:]
 
     detections = {}
     for frame in tqdm(range(num_frames)):
