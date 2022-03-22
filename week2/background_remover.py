@@ -3,13 +3,13 @@ from VehicleDetection import VehicleDetection
 import numpy as np
 from tqdm import tqdm
 
-def cleanMask(mask, kernel_size=3):
-    element = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size,kernel_size))
-    # erosion_dst = cv2.erode(mask, element)
-    # dilation = cv2.dilate(erosion_dst, element)
-    # mask2 = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, element)
-    # mask2 = cv2.morphologyEx(mask2, cv2.MORPH_OPEN, element)
+def closing(mask, kernel_w=3, kernel_h=3):
+    element = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_w, kernel_h))
     return cv2.morphologyEx(mask, cv2.MORPH_CLOSE, element)
+
+def opening(mask, kernel_w=3, kernel_h=3):
+    element = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_w, kernel_h))
+    return cv2.morphologyEx(mask, cv2.MORPH_OPEN, element)
 
 def getBoxesFromMask(mask):
     output = cv2.connectedComponentsWithStats(np.uint8(mask), 8, cv2.CV_32S)
@@ -36,7 +36,11 @@ def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2, kernelM
             img_mask = np.zeros(img_gray.shape, dtype = np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
-            cleaned = cleanMask(img_mask, 7)
+            cleaned = opening(img_mask, 5, 5) #initial removal of small noise
+            cleaned = closing(cleaned, 2, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
+            cleaned = opening(cleaned, 40, 5) #removal of thin erroneous vertical lines
+            cleaned = closing(cleaned, 100, 100) #filling of gaps
+            cleaned = opening(cleaned, 20, 60) #removing shadows and similars [REVISE]
 
             roi_applied = cv2.bitwise_and(cleaned, roi)
 
