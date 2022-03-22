@@ -2,6 +2,7 @@ import cv2
 from VehicleDetection import VehicleDetection
 import numpy as np
 from tqdm import tqdm
+import copy
 
 def closing(mask, kernel_w=3, kernel_h=3):
     element = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_w, kernel_h))
@@ -74,9 +75,10 @@ def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma
     roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-    
-    meansV = means[:]
-    stdsV = stds[:]
+
+    meansV = copy.deepcopy(means)
+    stdsV = copy.deepcopy(stds)
+
 
     detections = {}
     for frame in tqdm(range(num_frames)):
@@ -99,13 +101,13 @@ def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma
 
             detections[str(frame)] = getBoxesFromMask(cleaned)
             
-            cleaned = cv2.cvtColor(cleaned,cv2.COLOR_GRAY2RGB)
-            for b in detections[str(frame)]:
-                tl = (int(b.xtl), int(b.ytl))
-                br = (int(b.xbr), int(b.ybr))
-                color = (255,0,0)
-                cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
-            cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
+            # cleaned = cv2.cvtColor(cleaned,cv2.COLOR_GRAY2RGB)
+            # for b in detections[str(frame)]:
+            #     tl = (int(b.xtl), int(b.ytl))
+            #     br = (int(b.xbr), int(b.ybr))
+            #     color = (255,0,0)
+            #     cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
+            # cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
 
     return detections
 
