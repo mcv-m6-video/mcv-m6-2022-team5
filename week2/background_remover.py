@@ -25,9 +25,11 @@ def getBoxesFromMask(mask):
 def cleanMask(mask, roi):
     roi_applied = cv2.bitwise_and(mask, roi)
     cleaned = opening(roi_applied, 5, 5) #initial removal of small noise
-    cleaned = closing(cleaned, 50, 20) #horizontal filling of areas [SWITCH TO HORIZONTAL?]
-    cleaned = closing(cleaned, 20, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
-    cleaned = opening(cleaned, 7, 7)
+    cleaned = closing(cleaned, 1, 80) #vertical filling of areas
+    cleaned = closing(cleaned, 80, 1) #horizontal filling of areas
+    cleaned = closing(cleaned, 40, 1) # 2nd horizontal filling of areas
+    cleaned = closing(cleaned, 80, 80) #general filling
+    cleaned = opening(cleaned, 10, 60) #final cleaning
 
     return cleaned
 
