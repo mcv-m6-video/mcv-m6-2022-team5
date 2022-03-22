@@ -22,7 +22,19 @@ def getBoxesFromMask(mask):
 
     return detectedElems
 
-def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2, kernelMorph=5):
+def cleanMask(mask, roi):
+    cleaned = opening(mask, 5, 5) #initial removal of small noise
+    cleaned = closing(cleaned, 2, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
+    cleaned = opening(cleaned, 40, 5) #removal of thin erroneous vertical lines
+    cleaned = closing(cleaned, 100, 100) #filling of gaps
+    # cleaned = opening(cleaned, 20, 60) #removing shadows and similars [REVISE]
+
+    roi_applied = cv2.bitwise_and(cleaned, roi)
+
+    return roi_applied
+
+
+def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2):
     roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
     
     vidcap = cv2.VideoCapture(videoPath)
@@ -36,23 +48,19 @@ def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2, kernelM
             img_mask = np.zeros(img_gray.shape, dtype = np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
-            cleaned = opening(img_mask, 5, 5) #initial removal of small noise
-            cleaned = closing(cleaned, 2, 50) #vertical filling of areas [SWITCH TO HORIZONTAL?]
-            cleaned = opening(cleaned, 40, 5) #removal of thin erroneous vertical lines
-            cleaned = closing(cleaned, 100, 100) #filling of gaps
-            cleaned = opening(cleaned, 20, 60) #removing shadows and similars [REVISE]
+            cleaned = cleanMask(img_mask, roi)
 
-            roi_applied = cv2.bitwise_and(cleaned, roi)
-
-            cv2.imwrite(f'./masks/mask_{frame}.png', roi_applied)
+            cv2.imwrite(f'./masks/mask_{frame}.png', cleaned)
 
             detections[str(frame)] = getBoxesFromMask(cleaned)
 
     return detections
 
-def remove_background_adaptative(means, stds, videoPath, alpha=4, sigma=2, p=0.1):
+def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma=2, p=0.1):
+    roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+
     detections = {}
     for frame in tqdm(range(num_frames)):
         _, image = vidcap.read()
@@ -61,7 +69,7 @@ def remove_background_adaptative(means, stds, videoPath, alpha=4, sigma=2, p=0.1
             img_mask = np.zeros(img_gray.shape)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
-            cleaned = cleanMask(img_mask, 7)
+            cleaned = cleanMask(img_mask, roi)
             cv2.imwrite(f'./masks_adaptative/mask_{frame}.png', cleaned)
 
             #update mean and std
