@@ -2,6 +2,7 @@ import cv2
 from VehicleDetection import VehicleDetection
 import numpy as np
 from tqdm import tqdm
+import copy
 
 def closing(mask, kernel_w=3, kernel_h=3):
     element = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_w, kernel_h))
@@ -12,13 +13,17 @@ def opening(mask, kernel_w=3, kernel_h=3):
     return cv2.morphologyEx(mask, cv2.MORPH_OPEN, element)
 
 def getBoxesFromMask(mask):
+    # output = cv2.connectedComponentsWithStats(np.uint8(mask), 8, cv2.CV_32S)
+    # (numLabels, labels, boxes, centroids) = output
     counts, hier = cv2.findContours(mask, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
     detectedElems = []
     for cont in counts: #First box is always the background
         x,y,w,h = cv2.boundingRect(cont)
-        if w*h > 700: #Try to do a better estimation of the minimunm size
-            b = VehicleDetection(0, -1, float(x), float(y), float(w), float(h), float(-1))
-            detectedElems.append(b)
+        
+        if 29 < w < 593 and 12 < h < 442: #Condition based on GT minimums* and maximums
+            if 0.4 < w/h < 2.5: #Condition to avoid too elongated boxes
+                b = VehicleDetection(0, -1, float(x), float(y), float(w), float(h), float(-1))
+                detectedElems.append(b)
 
     return detectedElems
 
@@ -27,8 +32,8 @@ def cleanMask(mask, roi):
     cleaned = opening(roi_applied, 5, 5) #initial removal of small noise
     cleaned = closing(cleaned, 1, 80) #vertical filling of areas
     cleaned = closing(cleaned, 80, 1) #horizontal filling of areas
-    cleaned = closing(cleaned, 40, 1) # 2nd horizontal filling of areas
-    cleaned = closing(cleaned, 80, 80) #general filling
+    cleaned = closing(cleaned, 40, 1) #2nd horizontal filling of areas
+    # cleaned = closing(cleaned, 80, 80) #general filling
     cleaned = opening(cleaned, 10, 60) #final cleaning
 
     return cleaned
@@ -36,7 +41,6 @@ def cleanMask(mask, roi):
 
 def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2):
     roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
-    
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
     detections = {}
@@ -45,39 +49,65 @@ def remove_background(means, stds, videoPath, ROIpath, alpha=4, sigma=2):
         if frame >= num_frames // 4:
             img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             
+            img_gray = cv2.medianBlur(img_gray, 7)
+            
             img_mask = np.zeros(img_gray.shape, dtype = np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
 
             cleaned = cleanMask(img_mask, roi)
-
+            
             cv2.imwrite(f'./masks/mask_{frame}.png', cleaned)
 
             detections[str(frame)] = getBoxesFromMask(cleaned)
+            
+            cleaned = cv2.cvtColor(cleaned,cv2.COLOR_GRAY2RGB)
+            for b in detections[str(frame)]:
+                tl = (int(b.xtl), int(b.ytl))
+                br = (int(b.xbr), int(b.ybr))
+                color = (255,0,0)
+                cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
+            cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
 
     return detections
 
-def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma=2, p=0.1):
+
+def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma=2, p=0.04):
     roi = cv2.imread(ROIpath, cv2.IMREAD_GRAYSCALE)
     vidcap = cv2.VideoCapture(videoPath)
     num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    meansV = copy.deepcopy(means)
+    stdsV = copy.deepcopy(stds)
+
 
     detections = {}
     for frame in tqdm(range(num_frames)):
         _, image = vidcap.read()
         if frame >= num_frames // 4:
             img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
+#             img_gray = cv2.medianBlur(img_gray, 7)
+            
             img_mask = np.zeros(img_gray.shape, dtype=np.uint8)
             img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
-
+            
             cleaned = cleanMask(img_mask, roi)
             cv2.imwrite(f'./masks_adaptative/mask_{frame}.png', cleaned)
 
             #update mean and std
-            idxs = cleaned == 0
-            means[idxs] = p * img_gray[idxs] + (1 - p) * means[idxs]
-            stds[idxs] = np.sqrt(p * (img_gray[idxs] - means[idxs])**2 + (1 - p) * stds[idxs]**2)
+            idxs = (cleaned == 0)
+            meansV[idxs] = p * img_gray[idxs] + (1 - p) * meansV[idxs]
+            stdsV[idxs] = np.sqrt(p * (img_gray[idxs] - meansV[idxs])**2 + (1 - p) * stdsV[idxs]**2)
 
             detections[str(frame)] = getBoxesFromMask(cleaned)
+            
+            # cleaned = cv2.cvtColor(cleaned,cv2.COLOR_GRAY2RGB)
+            # for b in detections[str(frame)]:
+            #     tl = (int(b.xtl), int(b.ytl))
+            #     br = (int(b.xbr), int(b.ybr))
+            #     color = (255,0,0)
+            #     cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
+            # cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
 
     return detections
 

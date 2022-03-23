@@ -197,14 +197,14 @@ def ap_wo_conf(gt, detections, N=10 ,ovthresh=0.5):
 
     return recs, precs, aps
 
-def plot_prec_recall_curve(prec, rec, title='Precision-Recall curve'):
+def plot_prec_recall_curve(prec, rec, title='Precision-Recall curve', xAxis='Recall', yAxis='Precision'):
     # plotting the points
     plt.plot(rec, prec)
     
     # naming the x axis
-    plt.xlabel('Recall')
+    plt.xlabel(xAxis)
     # naming the y axis
-    plt.ylabel('Precision')
+    plt.ylabel(yAxis)
     
     # giving a title to my graph
     plt.title(title)
@@ -212,15 +212,15 @@ def plot_prec_recall_curve(prec, rec, title='Precision-Recall curve'):
     # function to show the plot
     plt.show()
 
-def plot_multiple_prec_recall_curves(precs, recs, labels, title='Precision-Recall curve'):
+def plot_multiple_prec_recall_curves(precs, recs, labels, title='Precision-Recall curve', xAxis='Recall', yAxis='Precision'):
     for ind, rec in enumerate(recs):
         # plotting the points
         plt.plot(rec, precs[ind], label=labels[ind])
     
     # naming the x axis
-    plt.xlabel('Recall')
+    plt.xlabel(xAxis)
     # naming the y axis
-    plt.ylabel('Precision')
+    plt.ylabel(yAxis)
     
     # giving a title to my graph
     plt.title(title)
