@@ -13,8 +13,6 @@ def opening(mask, kernel_w=3, kernel_h=3):
     return cv2.morphologyEx(mask, cv2.MORPH_OPEN, element)
 
 def getBoxesFromMask(mask):
-    # output = cv2.connectedComponentsWithStats(np.uint8(mask), 8, cv2.CV_32S)
-    # (numLabels, labels, boxes, centroids) = output
     counts, hier = cv2.findContours(mask, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
     detectedElems = []
     for cont in counts: #First box is always the background
@@ -30,11 +28,11 @@ def getBoxesFromMask(mask):
 def cleanMask(mask, roi):
     roi_applied = cv2.bitwise_and(mask, roi)
     cleaned = opening(roi_applied, 5, 5) #initial removal of small noise
-    cleaned = closing(cleaned, 1, 80) #vertical filling of areas
-    cleaned = closing(cleaned, 80, 1) #horizontal filling of areas
-    cleaned = closing(cleaned, 40, 1) #2nd horizontal filling of areas
-    # cleaned = closing(cleaned, 80, 80) #general filling
-    cleaned = opening(cleaned, 10, 60) #final cleaning
+    cleaned = closing(cleaned, 2, 80) #vertical filling of areas
+    cleaned = closing(cleaned, 80, 2) #horizontal filling of areas
+    # cleaned = closing(cleaned, 40, 1) #2nd horizontal filling of areas
+    cleaned = closing(cleaned, 2, 80) #general filling
+    cleaned = opening(cleaned, 10, 10) #final cleaning
 
     return cleaned
 
@@ -89,25 +87,18 @@ def remove_background_adaptative(means, stds, videoPath, ROIpath, alpha=4, sigma
 #             img_gray = cv2.medianBlur(img_gray, 7)
             
             img_mask = np.zeros(img_gray.shape, dtype=np.uint8)
-            img_mask[abs(img_gray - means) >= alpha * (stds + sigma)] = 255
+            img_mask[abs(img_gray - meansV) >= alpha * (stdsV + sigma)] = 255
             
             cleaned = cleanMask(img_mask, roi)
             cv2.imwrite(f'./masks_adaptative/mask_{frame}.png', cleaned)
 
+            detections[str(frame)] = getBoxesFromMask(cleaned)
+
             #update mean and std
-            idxs = (cleaned == 0)
+            idxs = (img_mask == 0)
             meansV[idxs] = p * img_gray[idxs] + (1 - p) * meansV[idxs]
             stdsV[idxs] = np.sqrt(p * (img_gray[idxs] - meansV[idxs])**2 + (1 - p) * stdsV[idxs]**2)
 
-            detections[str(frame)] = getBoxesFromMask(cleaned)
-            
-            # cleaned = cv2.cvtColor(cleaned,cv2.COLOR_GRAY2RGB)
-            # for b in detections[str(frame)]:
-            #     tl = (int(b.xtl), int(b.ytl))
-            #     br = (int(b.xbr), int(b.ybr))
-            #     color = (255,0,0)
-            #     cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
-            # cv2.imwrite(f'./masks_bb/mask_{frame}.png', cleaned)
 
     return detections
 
@@ -124,7 +115,6 @@ def get_background_stats(videoPath, initFrame=1, lastFrame=514):
         ims[frame,:,:] = (cv2.cvtColor(image, cv2.COLOR_BGR2GRAY))
 
     means = np.mean(ims, axis=0)
-    # means = np.median(ims, axis=0)
     stds = np.std(ims, axis=0)
     return means, stds
 
