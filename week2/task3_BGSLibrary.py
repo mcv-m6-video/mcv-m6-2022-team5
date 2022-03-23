@@ -58,18 +58,16 @@ def remove_background3(videoPath, ROIpath, fgbg):
             # image = cv2.medianBlur(image, 7)
             fgmask = fgbg.apply(image)
             fgmask[fgmask==127]=0
-            
-            cleaned = cleanMask(fgmask, roi)
+
+            roi_applied = cv2.bitwise_and(fgmask, roi)
+            cleaned = opening(roi_applied, 5, 5)  # initial removal of small noise
+            cleaned = closing(cleaned, 50, 20)  # vertical filling of areas [SWITCH TO HORIZONTAL?]
+            cleaned = closing(cleaned, 20, 50)  # vertical filling of areas [SWITCH TO HORIZONTAL?]
+            cleaned = opening(cleaned, 7, 7)
 
 #             cv2.imwrite(f'./masks/mask_{frame}.png', roi_applied)
 
             detections[str(frame)] = getBoxesFromMask2(cleaned)
-            # for b in detections[str(frame)]:
-            #     tl = (int(b.xtl), int(b.ytl))
-            #     br = (int(b.xbr), int(b.ybr))
-            #     color = (255,0,0)
-            #     cleaned = cv2.rectangle(cleaned, tl, br, color, 2)
-#             cv2.imwrite(f'./masks_bb/mask_{frame}.png', roi_applied)
             
     return detections
 
@@ -83,29 +81,6 @@ for frame, objs in gt_detect.items():
             obj_notParked.append(ob)
     if len(obj_notParked) > 0:
         gt_notParked[frame] = obj_notParked
-
-
-# mog = cv2.bgsegm.createBackgroundSubtractorMOG() 
-# mog2 = cv2.createBackgroundSubtractorMOG2()
-# knn = cv2.createBackgroundSubtractorKNN()
-# gmg = cv2.bgsegm.createBackgroundSubtractorGMG()
-
-
-# MOG_detections = remove_background3(data_path + 'vdo.avi', data_path + 'roi.jpg', mog)
-# rec, prec, ap, tp_gauss, IoU_tp, IoU = voc_eval(gt_notParked, MOG_detections, 0.5, False)
-# plot_prec_recall_curve(prec, rec, f'Precision-Recall curve for MOG - AP {ap}')
-
-# MOG2_detections = remove_background3(data_path + 'vdo.avi', data_path + 'roi.jpg', mog2)
-# rec, prec, ap, tp_gauss, IoU_tp, IoU = voc_eval(gt_notParked, MOG2_detections, 0.5, False)
-# plot_prec_recall_curve(prec, rec, f'Precision-Recall curve for MOG2 - AP {ap}')
-
-# KNN_detections = remove_background3(data_path + 'vdo.avi', data_path + 'roi.jpg', knn)
-# rec, prec, ap, tp_gauss, IoU_tp, IoU = voc_eval(gt_notParked, KNN_detections, 0.5, False)
-# plot_prec_recall_curve(prec, rec, f'Precision-Recall curve for KNN - AP {ap}')
-
-# GMG_detections = remove_background3(data_path + 'vdo.avi', data_path + 'roi.jpg', gmg)
-# rec, prec, ap, tp_gauss, IoU_tp, IoU = voc_eval(gt_notParked, GMG_detections, 0.5, False)
-# plot_prec_recall_curve(prec, rec, f'Precision-Recall curve for GMG - AP {ap}')
 
 ## bgslibrary algorithms
 algorithms=[]
