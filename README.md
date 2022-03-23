@@ -15,3 +15,12 @@
 * Task 2: Detection metrics. Temporal analysis.
 * Task 3: Optical flow evaluation metrics.
 * Task 4: Visual representation optical flow.
+
+
+
+## Week 2
+
+* Task 1: Gaussian modelling.
+* Task 2: Recursive Gaussian modelling.
+* Task 3: Compare with state-of-the-art.
+* Task 4: Color space effect.
