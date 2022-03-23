@@ -21,3 +21,5 @@
 - Functions to evaluate (adapted AP from detectron and multiple AP with random shuffling of detections without confidence) detections bounding boxes are located in `eval_utils.py`
 
 - Functions to generate animated GIFs with the bounding boxes are located in `video_utils.py`
+
+- Task 3 uses the [OpenCV.BackgroundSubstractor](https://docs.opencv.org/3.4/d7/df6/classcv_1_1BackgroundSubtractor.html) algorithms and [BGSLibrary](https://github.com/andrewssobral/bgslibrary) by Andrew Sobral. The implementations are contained with in `task3.ipynb` and `task3_BGSLibrary.py`, respectively.
