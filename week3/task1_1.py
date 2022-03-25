@@ -16,6 +16,7 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 from PIL import Image
 import argparse
 from VehicleDetection import VehicleDetection
+import time
 
 
 def parse_args():
@@ -56,6 +57,7 @@ num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 model_detections = {}
 
+start = time.time()
 for frame in range(num_frames):
     _, im = vidcap.read()
     outputs = predictor(im)
@@ -80,7 +82,9 @@ for frame in range(num_frames):
                             car_instances.scores[id].to('cpu').numpy(), float(box[2]), float(box[3]))
         model_detections[str(frame)].append(vh)
 
+end = time.time()
     
+print(f'Elapsed time to infer all video frames for model {args.detections}: {end - start}')
 with open(args.detections + '.pkl', "wb") as output_file:
     pickle.dump(model_detections, output_file)
 
