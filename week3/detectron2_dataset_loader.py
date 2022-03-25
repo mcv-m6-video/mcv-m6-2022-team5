@@ -1,28 +1,32 @@
-import xmltodict
+import cv2
+from detectron2.structures import BoxMode
 
 
-#TODO: Not finisehd, only a esqueleton
-def readDetectionsXML(path):
-  #Generates detection dictionary where the frame number is the key and the values are the info of the corresponding detection/s
-  
-    with open(path,"r") as xml_obj:
-        #coverting the xml data to Python dictionary
-        gt = xmltodict.parse(xml_obj.read())
-        #closing the file
-        xml_obj.close()
+def get_KITTIMOTS_dicts(gt_detected, frames, format_path):
+    """
+    Registers the KITTI-MOTS dataset to detectron2
+    """
     
-
-    detections = {}
-    for track in gt['annotations']['track']:
-        if track['@label'] == 'car':
-            for deteccion in track['box']:
-                if deteccion['@frame'] not in detections:
-                    detections[deteccion['@frame']] = []
-                
-                if deteccion['attribute']['@name'] == 'parked' and deteccion['attribute']['#text'] == 'false':
-                    pass
-                else:
-                    pass
-                detections[deteccion['@frame']].append(None)
-
-    return detections
+    dataset_dicts = []
+    for frame in frames:
+        record = {}
+        
+        height, width = cv2.imread(format_path.format(frame)).shape[:2]
+        
+        record["file_name"] = format_path.format(str(frame))
+        record["image_id"] = frame
+        record["height"] = height
+        record["width"] = width
+    
+        objs = []
+        boxes = gt_detected[str(frame)]
+        for elems in boxes:
+            obj = {
+                "bbox": elems.getBBox(),
+                "bbox_mode": BoxMode.XYXY_ABS,
+                "category_id": 0, # Only cars, maybe could be more generic
+            }
+            objs.append(obj)
+        record["annotations"] = objs
+        dataset_dicts.append(record)
+    return dataset_dicts
