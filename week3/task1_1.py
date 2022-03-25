@@ -70,15 +70,15 @@ for frame in range(num_frames):
     # out = v.draw_instance_predictions(car_instances.pred_classes == 2].to("cpu"))
     # image = Image.fromarray(out.get_image()[:, :, ::-1])
     # image.save(f'{args.out_path}/predicted_{frame}.png')
-    model_detections[frame] = []
+    model_detections[str(frame)] = []
 
     for id in range(len(car_instances)):
         box = car_instances.pred_boxes[id].tensor.to('cpu').detach().numpy()[0]
         # print(box)
         vh = VehicleDetection(frame, -1, 
                             float(box[0]), float(box[1]), 0, 0, 
-                            car_instances.scores[id], float(box[2]), float(box[3]))
-        model_detections[frame].append(vh)
+                            car_instances.scores[id].to('cpu').numpy(), float(box[2]), float(box[3]))
+        model_detections[str(frame)].append(vh)
 
     
 with open(args.detections + '.pkl', "wb") as output_file:
