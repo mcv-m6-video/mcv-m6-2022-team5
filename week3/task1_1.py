@@ -86,10 +86,8 @@ for frame in range(num_frames):
                             float(box[0]), float(box[1]), 0, 0, 
                             car_instances.scores[id].to('cpu').numpy(), float(box[2]), float(box[3]))
         model_detections[str(frame)].append(vh)
-    break
 
 end = time.time()
-print(model_detections)
 print(f'Elapsed time to infer all video frames for model {args.detections}: {end - start}')
 with open(args.detections + '.pkl', "wb") as output_file:
     pickle.dump(model_detections, output_file)
