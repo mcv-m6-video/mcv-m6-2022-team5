@@ -127,6 +127,9 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.3):
     for t,trk in enumerate(trackers):
       iou_matrix[d,t] = iou(det,trk)
   matched_indices = linear_assignment(-iou_matrix)
+  if type(matched_indices) is tuple:
+    matched_indices = np.array(matched_indices)
+
 
   unmatched_detections = []
   for d,det in enumerate(detections):
@@ -138,9 +141,13 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.3):
       unmatched_trackers.append(t)
 
   #filter out matched with low IOU
-  matches = []
+  matches = []                              
   for m in matched_indices:
-    if(iou_matrix[m[0],m[1]]<iou_threshold):
+    print("iou_matrix_shape: {}".format(iou_matrix.shape))
+    print("m[0]: {}".format(m[0]))
+    print("m[1]: {}".format(m[1]))
+    print("---")
+    if(iou_matrix[m[1]-1,m[0]-1]<iou_threshold):
       unmatched_detections.append(m[0])
       unmatched_trackers.append(m[1])
     else:
