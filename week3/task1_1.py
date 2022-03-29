@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument('-m', '--model', default='COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml', type=str, help='Detectron2 Model')
     parser.add_argument('-d', '--detections', default='model_detections', type=str, help='Name of the file to save the detections')
     parser.add_argument('-l', '--load_w', default=None, type=str, help='Path to trained weights')
+    parser.add_argument('-c', '--pred_class', default=2, type=int, help='Class to prediect')
 
     return parser.parse_args()
 
@@ -52,6 +53,7 @@ cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
 # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
 if args.load_w is not None:
     cfg.MODEL.WEIGHTS = args.load_w
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
 else:
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(config_file)
 predictor = DefaultPredictor(cfg)
@@ -67,9 +69,8 @@ for frame in range(num_frames):
     outputs = predictor(im)
 
     # look at the outputs. See https://detectron2.readthedocs.io/tutorials/models.html#model-output-format for specification
-    # print(outputs["instances"].pred_classes)
     # print(outputs["instances"].pred_boxes)
-    car_instances = outputs["instances"][outputs["instances"].pred_classes == 2]
+    car_instances = outputs["instances"][outputs["instances"].pred_classes == args.pred_class]
 
     # We can use `Visualizer` to draw the predictions on the image.
     # v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=0.8)
@@ -77,7 +78,7 @@ for frame in range(num_frames):
     # image = Image.fromarray(out.get_image()[:, :, ::-1])
     # image.save(f'{args.out_path}/predicted_{frame}.png')
     model_detections[str(frame)] = []
-
+    # break
     for id in range(len(car_instances)):
         box = car_instances.pred_boxes[id].tensor.to('cpu').detach().numpy()[0]
         # print(box)
@@ -85,9 +86,10 @@ for frame in range(num_frames):
                             float(box[0]), float(box[1]), 0, 0, 
                             car_instances.scores[id].to('cpu').numpy(), float(box[2]), float(box[3]))
         model_detections[str(frame)].append(vh)
+    break
 
 end = time.time()
-    
+print(model_detections)
 print(f'Elapsed time to infer all video frames for model {args.detections}: {end - start}')
 with open(args.detections + '.pkl', "wb") as output_file:
     pickle.dump(model_detections, output_file)

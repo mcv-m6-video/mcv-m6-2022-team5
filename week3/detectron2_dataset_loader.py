@@ -2,18 +2,19 @@ import cv2
 from detectron2.structures import BoxMode
 
 
-def get_KITTIMOTS_dicts(gt_detected, frames, format_path):
+def get_AICity_dicts(gt_detected, frames, base_path):
     """
     Registers the KITTI-MOTS dataset to detectron2
     """
     
     dataset_dicts = []
-    for frame in frames:
+    for file in frames:
+        frame = file[4:-4] #format is vdo_<number>.png 
         record = {}
+        filename = base_path + file
+        height, width = cv2.imread(filename).shape[:2]
         
-        height, width = cv2.imread(format_path.format(frame)).shape[:2]
-        
-        record["file_name"] = format_path.format(str(frame))
+        record["file_name"] = filename
         record["image_id"] = frame
         record["height"] = height
         record["width"] = width
