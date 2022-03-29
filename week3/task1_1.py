@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument('-o', '--out_path', default='./results_out_of_context', type=str, help='Relative path to output folder')
     parser.add_argument('-m', '--model', default='COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml', type=str, help='Detectron2 Model')
     parser.add_argument('-d', '--detections', default='model_detections', type=str, help='Name of the file to save the detections')
+    parser.add_argument('-l', '--load_w', default=None, type=str, help='Path to trained weights')
 
     return parser.parse_args()
 
@@ -49,7 +50,10 @@ cfg.merge_from_file(model_zoo.get_config_file(config_file))
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
 
 # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
-cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(config_file)
+if args.load_w is not None:
+    cfg.MODEL.WEIGHTS = args.load_w
+else:
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(config_file)
 predictor = DefaultPredictor(cfg)
 
 vidcap = cv2.VideoCapture(video_path)
