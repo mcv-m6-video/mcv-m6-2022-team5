@@ -30,9 +30,9 @@ def display_metrics(acc, selected_metrics = ['num_frames', 'mota', 'motp', 'idf1
 
     
 
-# Example below [IGNORE]
+# # Example below [IGNORE]
 
-# Create an accumulator that will be updated during each frame
+# # Create an accumulator that will be updated during each frame
 # acc = mm.MOTAccumulator(auto_id=True)
 
 # acc.update(
