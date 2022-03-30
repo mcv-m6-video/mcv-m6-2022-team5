@@ -12,15 +12,15 @@ def update_accumulator(acc, gt_object_ids, det_object_ids, IoUs):
     #   det_object_ids: List with detection object ids in the frame
     #   IoUs: For every ground truth object id, IoU scores relative to every detection (list of lists)
 
-    acc.update(
+    frame_id = acc.update(
         gt_object_ids,
         det_object_ids,
-        IoUs
+        IoUs #inverted (1-IoU version to reward lower values)
     )
 
-    return acc
+    return acc, frame_id
 
-def display_metrics(acc, selected_metrics = ['num_frames', 'mota', 'motp', 'idf1']):
+def display_metrics(acc, selected_metrics = ['num_frames', 'precision', 'recall', 'idp', 'idr', 'idf1']):
     # Computes and displays multiple object tracking metrics 
 
     mh = mm.metrics.create()
