@@ -37,3 +37,12 @@
     * Task 2.2: Tracking with a Kalman Filter
     * Task 2.3: IDF1 score
 
+## Week 4
+* T1 Optical Flow
+    * T1.1 Optical Flow with Block Matching
+    * T1.2 Off-the-shelf Optical Flow
+    * T1.3 Object Tracking with Optical Flow
+* T2 Multi-target single-camera (MTSC) tracking
+    * T2.1 Evaluate MTSC on SEQ 3
+    * T2.2 Evaluate MTSC on SEQ 1 & SEQ 4
+
