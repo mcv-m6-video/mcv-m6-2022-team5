@@ -130,3 +130,10 @@ dmypy.json
 
 
 *.gif
+*.err
+*.out
+
+*job_*
+
+*results_*
+*task_13B
