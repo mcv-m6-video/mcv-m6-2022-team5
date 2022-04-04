@@ -3,6 +3,8 @@ import math
 import imageio
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+from math import inf
 
 # load optical flow based on kitti dataset standard:
 # Optical flow maps are saved as 3-channel uint16 PNG images: The first channel
@@ -87,4 +89,58 @@ def generate_motion_gif(filenames, save_path):
         for filename in filenames:
             image = imageio.imread(filename)
             writer.append_data(image)
+
+def distance(patch1, patch2, method='ssd', weights=None):
+    if weights is None:
+        weights = np.ones(patch1.shape) / (patch1.shape[0]*patch1.shape[1])
+    if method == 'ssd':
+        diff = np.sum(weights * abs(patch1-patch2)**2)
+    elif method == 'sad':
+        diff = np.sum(weights * np.abs(patch1-patch2))
+    elif method == 'ncc':
+        product = (patch1 - patch1*weights) * (patch2 - patch2*weights)
+        product = np.sum(weights * product)
+        stds1 = np.sqrt(np.sum(weights*np.square(patch1 - patch1*weights)))
+        stds2 = np.sqrt(np.sum(weights*np.square(patch2 - patch2*weights)))
+        stds = stds1 * stds2
+        if stds == 0:
+            return 0
+        else:
+            product /= stds
+        diff = -product #making negative the value is equivalint to look for the maximun
+    return diff
+
+
+def block_matching(current_img, past_img, proccess='backward', metric='ssd',N=16, P=16, stride=1):
+    if proccess == 'backward':
+        target_img = current_img
+        ref_img = past_img
+    else:
+        ref_img = current_img
+        target_img = past_img
+
+    h, w, _ = ref_img.shape
+    optical_flow = np.zeros((h, w, 2))
+    for rows in tqdm(range(0, h, N)):
+        for cols in range(0, w, N):
+            block = ref_img[rows:rows+N,cols:cols+N]
+            area_minx = max(0, cols - P)
+            area_miny = max(0, rows - P)
+            area_maxX = min(w, cols + N + P)
+            area_maxy = min(h, rows + N + P)
+            # area_target = target_img[area_miny:area_maxy, area_minx:area_maxX]
+            blocH_size = block.shape[0]
+            blocW_size = block.shape[1]                
+            minDist = inf
+            for y in range(area_miny, area_maxy - N, stride):
+                for x in range(area_minx, area_maxX - N, stride):
+                    dist = distance(block, target_img[y:y+blocH_size, x:x+blocW_size], metric)
+                    if dist < minDist:
+                        minDist = dist
+                        optical_flow[rows:rows+N,cols:cols+N] = [cols - x, rows - y]
+    
+    optical_flow = np.moveaxis(optical_flow, -1, 0)
+    if proccess == 'backward':
+        return (-optical_flow)
+    return optical_flow
 
