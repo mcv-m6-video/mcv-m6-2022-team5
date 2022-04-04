@@ -23,6 +23,12 @@ class VehicleDetection:
     def setParked(self, parked):
         self.parked = parked
 
+    def updateBBox(self, box):
+        self.xtl = box[0]
+        self.ytl = box[1]
+        self.xbr = box[2]
+        self.ybr = box[3]
+
     def drawRectangleOnImage(self, img, color=(0, 255, 0)):
         cv2.rectangle(img, (self.xtl, self.ytl), (self.xbr, self.ybr), color)
 

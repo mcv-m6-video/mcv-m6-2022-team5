@@ -144,3 +144,24 @@ def block_matching(current_img, past_img, proccess='backward', metric='ssd',N=16
         return (-optical_flow)
     return optical_flow
 
+
+def compute_block_of(block, box, im_target, mode, P, stride=1):
+    blocH_size = block.shape[0]
+    blocW_size = block.shape[1]                
+    area_minx = max(0, int(box[0]) - P)
+    area_miny = max(0, int(box[1]) - P)
+    area_maxX = min(im_target.shape[1] - blocW_size, int(box[2]) + P)
+    area_maxy = min(im_target.shape[0] - blocH_size, int(box[3]) + P)
+    # area_target = target_img[area_miny:area_maxy, area_minx:area_maxX]
+    minDist = inf
+    of = []
+    for y in (range(area_miny, area_maxy-blocH_size, stride)):
+        for x in range(area_minx, area_maxX-blocW_size, stride):
+            dist = distance(block, im_target[y:y+blocH_size, x:x+blocW_size], 'ssd')
+            if dist < minDist:
+                minDist = dist
+                of = np.array([x - box[0], y - box[1]])
+    if mode == 'forward':
+        return -of
+    return of
+    
