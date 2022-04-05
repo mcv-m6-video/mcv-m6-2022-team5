@@ -118,12 +118,17 @@ def update_track(detections_pd, next_detections_pd, tolerance=0.5, imgs=None):
 
 
 # Detection to DataFrame
-def get_detection_dataframe(detections, iclLineAndUpdate = True):
+def get_detection_dataframe(detections, iclLineAndUpdate = True, firstFrame = False):
     bboxes = []
     bsizes = []
     lines = deque(maxlen=32)
     bdetections = []
-    tracks = list(range(0, len(detections)))
+
+    if firstFrame == True:
+        tracks = list(range(1, len(detections)+1))
+    else:    
+        tracks = [0]*len(detections)
+
     colours = []
     for i in range(len(detections)):
         colours.append(tuple(np.random.choice(range(256), size=3).astype('int')))
