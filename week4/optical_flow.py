@@ -96,7 +96,7 @@ def distance(patch1, patch2, method='ssd', weights=None):
     if method == 'ssd':
         diff = np.sum(weights * abs(patch1-patch2)**2)
     elif method == 'sad':
-        diff = np.sum(weights * np.abs(patch1-patch2))
+        diff = np.sum(weights * abs(patch1-patch2))
     elif method == 'ncc':
         product = (patch1 - patch1*weights) * (patch2 - patch2*weights)
         product = np.sum(weights * product)

@@ -129,6 +129,7 @@ def get_detection_dataframe(detections, iclLineAndUpdate = True):
         colours.append(tuple(np.random.choice(range(256), size=3).astype('int')))
         
     updated = [False]*len(detections)
+    use_of = [0]*len(detections)
     
     for detection in detections:
         bbox = np.array(detection.getBBox()).astype('int')
@@ -151,7 +152,8 @@ def get_detection_dataframe(detections, iclLineAndUpdate = True):
             'size': bsizes,
             'line': lines,
             'colour': colours,
-            'updated': updated
+            'updated': updated,
+            'opt_flow': use_of
         }
     else:
         detec = {
