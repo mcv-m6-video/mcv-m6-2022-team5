@@ -118,7 +118,7 @@ def update_track(detections_pd, next_detections_pd, tolerance=0.5, imgs=None):
 
 
 # Detection to DataFrame
-def get_detection_dataframe(detections):
+def get_detection_dataframe(detections, iclLineAndUpdate = True):
     bboxes = []
     bsizes = []
     lines = deque(maxlen=32)
@@ -143,15 +143,24 @@ def get_detection_dataframe(detections):
 
         bdetections.append(detection)
 
-    detec = {
-        'track': tracks,
-        'detection': bdetections,
-        'bbox': bboxes,
-        'size': bsizes,
-        'line': lines,
-        'colour': colours,
-        'updated': updated
-    }
+    if iclLineAndUpdate == True: 
+        detec = {
+            'track': tracks,
+            'detection': bdetections,
+            'bbox': bboxes,
+            'size': bsizes,
+            'line': lines,
+            'colour': colours,
+            'updated': updated
+        }
+    else:
+        detec = {
+            'track': tracks,
+            'detection': bdetections,
+            'bbox': bboxes,
+            'size': bsizes,
+            'colour': colours,
+        }
     detections_pd = pd.DataFrame(detec)
     detections_pd = detections_pd.sort_values(by=['size'], ascending=False)
     detections_pd = detections_pd.reset_index(drop=True)
