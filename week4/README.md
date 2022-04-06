@@ -37,3 +37,24 @@ More result examples of the grid search performed can be generated using `plot_3
                         Distance function: ncc - ssd - sad
   - -s STRIDE, --stride STRIDE
                         Stride value used in grid seatch (data.json contains 1 and 2)
+
+
+### Extra results for Task 2
+More predictions for different videos can be made with the `tas2_predict.py` script. The possible arguments are:
+  usage: tas2_predict.py [-h] [-v VIDEO] [-o OUT_PATH] [-m MODEL] [-d DETECTIONS] [-l LOAD_W] [-c PRED_CLASS]
+
+Arguments to run the inference script
+
+  - -h, --help            show this help message and exit
+  - -v VIDEO, --video VIDEO
+                        Absolute path to video to extract images
+  - -o OUT_PATH, --out_path OUT_PATH
+                        Relative path to output folder
+  - -m MODEL, --model MODEL
+                        Detectron2 Model
+  - -d DETECTIONS, --detections DETECTIONS
+                        Name of the file to save the detections
+  - -l LOAD_W, --load_w LOAD_W
+                        Path to trained weights
+  - -c PRED_CLASS, --pred_class PRED_CLASS
+                        Class to prediect
