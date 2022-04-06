@@ -4,7 +4,7 @@ import pickle as pkl
 from detectron2.structures import BoxMode
 
 
-def get_AICity_dicts(gt_detected, frames, base_path):
+def get_AICity_dicts(gt_detected, frames, base_path, div):
     """
     Registers the KITTI-MOTS dataset to detectron2
     """
@@ -21,11 +21,11 @@ def get_AICity_dicts(gt_detected, frames, base_path):
 
     dataset_dicts = []
     for idx, frame in enumerate(frames):
-        if idx*2 in gt_detected.keys():
+        if str(idx*div) in gt_detected.keys():
             image_id = idx + last_id
             record = {}
             height, width = frame.shape[:2]
-            filename = base_path + f"vdo_{idx*2}.png"
+            filename = base_path + f"vdo_{idx*div}.png"
             cv2.imwrite(filename, frame)
             record["file_name"] = filename
             record["image_id"] = image_id
@@ -33,7 +33,7 @@ def get_AICity_dicts(gt_detected, frames, base_path):
             record["width"] = width
 
             objs = []
-            boxes = gt_detected[str(idx*2)]
+            boxes = gt_detected[str(idx*div)]
             for elems in boxes:
                 obj = {
                     "bbox": elems.getBBox(),
@@ -46,3 +46,9 @@ def get_AICity_dicts(gt_detected, frames, base_path):
     
     pkl.dump([image_id],open("last_id.pkl", "wb"))
     return dataset_dicts
+
+def get_AICity_dicts_big(seqs):
+    result = []
+    for seq in seqs:
+        result += get_AICity_dicts(**seq)
+    return result
