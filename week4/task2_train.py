@@ -67,8 +67,8 @@ SEQUENCES = [seq.replace(DATASET, "").replace("/", "") for seq in SEQUENCES]
 CAMERAS = dict(zip(SEQUENCES, CAMERAS))
 
 # DEFINE SPLITS
-train = ["S01", "S04"]
-test = ["S03"]
+train = ["S03", "S01"]
+test = ["S04"]
 
 # Model Parameters
 selected_model = 'COCO-Detection/retinanet_R_101_FPN_3x.yaml'
@@ -83,7 +83,7 @@ for i, seq in enumerate(train):
         data["base_path"] = cam + "frames/" # To Save Frames
         data["gt_detected"] = readDetections(cam + "gt/gt.txt")
         data["gt_detected"] = {key:data["gt_detected"][key] for key in data["gt_detected"].keys() if int(key) % data["div"] == 0}
-        data["frames"] = extract_video(cam + "vdo.avi", 10,data["div"])
+        data["frames"] = extract_video(cam + "vdo.avi", 8, 1)
         seq_data.append(data)
 
 
@@ -110,10 +110,10 @@ cfg.SOLVER.BASE_LR = 1e-3
 cfg.SOLVER.MAX_ITER = 500
 cfg.SOLVER.STEPS = [] # do not decay learning rate
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 # (default: 512)
-cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 cfg.MODEL.BACKBONE.FREEZE_AT = 1
 
-cfg.OUTPUT_DIR = "./results_train_seq01-04"
+cfg.OUTPUT_DIR = "./results_train_seq03-04"
 
 os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 trainer = DefaultTrainer(cfg) 
@@ -142,7 +142,7 @@ for i, seq in enumerate(test):
         data["gt_detected"] = readDetections(cam + "gt/gt.txt")
         data["gt_detected"] = {key:data["gt_detected"][key] for key in data["gt_detected"].keys() if int(key) % data["div"] == 0}
         data["frames"] = extract_video(cam + "vdo.avi", 10,data["div"])
-        seq_data.append(data)
+        seq_data_val.append(data)
 
 DatasetCatalog.register("AICity_valid" , lambda d=seq_data_val: get_AICity_dicts_big(d))
 MetadataCatalog.get("AICity_valid").set(thing_classes=["car"])
