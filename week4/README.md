@@ -25,7 +25,7 @@
 
 - Task 1.3 is in `task1_3.ipynb`
 
-- Task 2 is in  `task2_big_train.ipynb`, `task2_big_eval.ipynb` and `task2_evaluator.ipynb` training, inference and metrics respectively.
+- Task 2 is in  `task2_big_train.py`, `tas2_predict.py` and `task2_evaluator.ipynb` training, inference and metrics respectively.
 
 - The main class used along the week project is VehicleDetection, stored in `VehicleDetection.py`. Stores information per detection, the main attributes are the frame number, the confidence value and the 4 corners of the bounding box. It also implements functions like IoU.
 
