@@ -12,7 +12,7 @@ import random
 def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
     sframe = str(frame)
 
-    gt_detections_pd = get_detection_dataframe(gt_detect[sframe])
+    gt_detections_pd = get_detection_dataframe(gt_detect[sframe], iclLineAndUpdate = False, firstFrame = True)
     det_detections_pd = detections[frame]
     
     gt_object_ids = []

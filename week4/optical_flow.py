@@ -145,14 +145,33 @@ def block_matching(current_img, past_img, proccess='backward', metric='ssd',N=16
     return optical_flow
 
 
+# def compute_block_of(block, box, im_target, mode, P, stride=1):
+#     blocH_size = block.shape[0]
+#     blocW_size = block.shape[1]                
+#     area_minx = max(0, int(box[0]) - P)
+#     area_miny = max(0, int(box[1]) - P)
+#     area_maxX = min(im_target.shape[1], int(box[2]) + P)
+#     area_maxy = min(im_target.shape[0], int(box[3]) + P)
+#     # area_target = target_img[area_miny:area_maxy, area_minx:area_maxX]
+#     minDist = inf
+#     of = []
+#     for y in (range(area_miny, area_maxy-blocH_size, stride)):
+#         for x in range(area_minx, area_maxX-blocW_size, stride):
+#             dist = distance(block, im_target[y:y+blocH_size, x:x+blocW_size], 'ssd')
+#             if dist < minDist:
+#                 minDist = dist
+#                 of = np.array([x - box[0], y - box[1]])
+#     if mode == 'forward':
+#         return -of
+#     return of
+
 def compute_block_of(block, box, im_target, mode, P, stride=1):
     blocH_size = block.shape[0]
     blocW_size = block.shape[1]                
     area_minx = max(0, int(box[0]) - P)
     area_miny = max(0, int(box[1]) - P)
-    area_maxX = min(im_target.shape[1] - blocW_size, int(box[2]) + P)
-    area_maxy = min(im_target.shape[0] - blocH_size, int(box[3]) + P)
-    # area_target = target_img[area_miny:area_maxy, area_minx:area_maxX]
+    area_maxX = min(im_target.shape[1], int(box[2]) + P)
+    area_maxy = min(im_target.shape[0], int(box[3]) + P)
     minDist = inf
     of = []
     for y in (range(area_miny, area_maxy-blocH_size, stride)):
@@ -160,8 +179,25 @@ def compute_block_of(block, box, im_target, mode, P, stride=1):
             dist = distance(block, im_target[y:y+blocH_size, x:x+blocW_size], 'ssd')
             if dist < minDist:
                 minDist = dist
-                of = np.array([x - box[0], y - box[1]])
-    if mode == 'forward':
-        return -of
+                if mode == 'forward':
+                    of = np.array([box[0] - x, box[1] - y])
+                elif mode == 'backward':
+                    of = np.array([x - box[0], y - box[1]])
     return of
+
+
+def apply_of_to_box(box, imgs=None, OF = 'bm'):
+    if OF =='bm':
+        block = imgs[0][int(box[1]):int(box[3]), int(box[0]):int(box[2])]
+        of = compute_block_of(block, box, imgs[1], 'backward', 10, stride = 1)
+
+        if len(of) > 0:
+            if (of[0] != 0.0 or of[1] != 0.0):
+                newBox = [box[0]+of[0], box[1]+of[1], box[2]+of[0], box[3]+of[1]]
+            else:
+                newBox = box
+        else:
+            newBox = box
+
+    return newBox
     

@@ -174,11 +174,12 @@ def get_detection_dataframe(detections, iclLineAndUpdate = True, firstFrame = Fa
     
     return detections_pd
 
-def drawTrackingOnImage(img, bbox, track=0, line=[], colour=(0, 255, 0)):
+def drawTrackingOnImage(img, bbox, track=0, line=[], colour=(0, 255, 0), showTracking = True):
     b, g, r = colour
     img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (int(b), int(g), int(r)), 3)
-    img = cv2.putText(img, str(track), (bbox[0], bbox[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (int(b), int(g), int(r)), 3)
-    for i in range(1, len(line)):
-        img = cv2.line(img, line[i - 1], line[i], (int(b), int(g), int(r)), 3)
+    if showTracking:
+        img = cv2.putText(img, str(track), (bbox[0], bbox[1] - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (int(b), int(g), int(r)), 3)
+        for i in range(1, len(line)):
+            img = cv2.line(img, line[i - 1], line[i], (int(b), int(g), int(r)), 3)
     return img
