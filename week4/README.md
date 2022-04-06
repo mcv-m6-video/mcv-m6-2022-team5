@@ -19,6 +19,11 @@
 
 ## Deliverables
 
+- Task 1.1 Block Matching code is in `blockMatching.ipynb`
+
+- Task 1.2 visualisation done in `task_1-2.ipynb`, with `.png` results stored in the `task_1-2_results/` folder. Perceiver-IO is ran using `Perceiver - optical_flow.ipynb` on google colab.
+
+- Task 1.3 is in `task1_3.ipynb`
 
 - The main class used along the week project is VehicleDetection, stored in `VehicleDetection.py`. Stores information per detection, the main attributes are the frame number, the confidence value and the 4 corners of the bounding box. It also implements functions like IoU.
 
@@ -26,7 +31,10 @@
 
 - Functions to generate animated GIFs with the bounding boxes are located in `video_utils.py`
 
-- Task 3 uses the [OpenCV.BackgroundSubstractor](https://docs.opencv.org/3.4/d7/df6/classcv_1_1BackgroundSubtractor.html) algorithms and [BGSLibrary](https://github.com/andrewssobral/bgslibrary) by Andrew Sobral. The implementations are contained with in `task3.ipynb` and `task3_BGSLibrary.py`, respectively.
+
+
+
+
 
 ### Extra results for Task 1.1
 More result examples of the grid search performed can be generated using `plot_3d.py`. The possible arguments are:
