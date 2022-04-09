@@ -1,3 +1,16 @@
+import argparse
+def parse_args():
+    parser = argparse.ArgumentParser(description= 'Arguments to run the inference script')
+    parser.add_argument('-v', '--video', default=None, type=str, help='Absolute path to video to extract images')
+    parser.add_argument('-o', '--out_path', default='./results', type=str, help='Relative path to output folder')
+    parser.add_argument('-m', '--model', default='COCO-Detection/retinanet_R_101_FPN_3x.yaml', type=str, help='Detectron2 Model')
+    parser.add_argument('-d', '--detections', default='model_detections', type=str, help='Name of the file to save the detections')
+    parser.add_argument('-l', '--load_w', default=None, type=str, help='Path to trained weights')
+    parser.add_argument('-c', '--pred_class', default=0, type=int, help='Class to prediect')
+
+    return parser.parse_args()
+
+args = parse_args()
 from glob import glob
 from detectron2.utils.logger import setup_logger
 setup_logger()
@@ -19,18 +32,6 @@ from VehicleDetection import VehicleDetection
 import time
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description= 'Arguments to run the inference script')
-    parser.add_argument('-v', '--video', default=None, type=str, help='Absolute path to video to extract images')
-    parser.add_argument('-o', '--out_path', default='./results', type=str, help='Relative path to output folder')
-    parser.add_argument('-m', '--model', default='COCO-Detection/retinanet_R_101_FPN_3x.yaml', type=str, help='Detectron2 Model')
-    parser.add_argument('-d', '--detections', default='model_detections', type=str, help='Name of the file to save the detections')
-    parser.add_argument('-l', '--load_w', default=None, type=str, help='Path to trained weights')
-    parser.add_argument('-c', '--pred_class', default=0, type=int, help='Class to prediect')
-
-    return parser.parse_args()
-
-args = parse_args()
 
 video_path = args.video
 
