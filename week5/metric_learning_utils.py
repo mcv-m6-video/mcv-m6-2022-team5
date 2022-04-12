@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -140,3 +141,14 @@ def extract_embeddings(dataloader, model, size):
             labels[k:k+len(images)] = target.numpy()
             k += len(images)
     return embeddings, labels
+
+def plot_embeddings(embeddings, targets, legend_cls, colors, xlim=None, ylim=None, n_classes=8):
+    plt.figure(figsize=(15,15))
+    for i in range(n_classes):
+        inds = np.where(targets==i)[0]
+        plt.scatter(embeddings[inds,0], embeddings[inds,1], alpha=0.5, color=colors[i])
+    if xlim:
+        plt.xlim(xlim[0], xlim[1])
+    if ylim:
+        plt.ylim(ylim[0], ylim[1])
+    plt.legend(legend_cls)
