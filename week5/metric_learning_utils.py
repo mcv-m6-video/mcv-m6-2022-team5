@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 from PIL import Image
 
 import torch
@@ -152,3 +153,16 @@ def plot_embeddings(embeddings, targets, legend_cls, colors, xlim=None, ylim=Non
     if ylim:
         plt.ylim(ylim[0], ylim[1])
     plt.legend(legend_cls)
+
+def getDistances(comparisonMethod, baseImageHistograms, queryImageHistogram):
+    # loop over the index
+    results = {}
+    for path,label,hist in baseImageHistograms:
+        # compute the distance between the two histograms
+        # using the method and update the results dictionary
+        query = cv2.UMat(np.array(queryImageHistogram, dtype=np.float32))
+        histBase = cv2.UMat(np.array(hist, dtype=np.float32))
+        distance = cv2.compareHist(query, histBase, comparisonMethod)
+
+        results[path] = (label, distance)
+    return results
