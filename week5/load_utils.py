@@ -4,6 +4,12 @@ import cv2
 import xmltodict
 from VehicleDetection import VehicleDetection
 
+def readFrameCount(sequence, camera):
+    with open(f'./frame_counts/{sequence}.txt') as f:
+        for line in f:
+            if str(line[:3]) == camera:
+                return line[4:]
+
 def readDetectionsXML(path):
   #Generates detection dictionary where the frame number is the key and the values are the info of the corresponding detection/s
   
