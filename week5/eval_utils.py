@@ -15,7 +15,8 @@ def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
     empty_gt = False
 
     try:
-        gt_detections_pd = get_detection_dataframe(gt_detect[sframe], iclLineAndUpdate = False, firstFrame = True)
+        # gt_detections_pd = get_detection_dataframe(gt_detect[sframe], iclLineAndUpdate = False, firstFrame = True)
+        gt_detections_pd = get_gt_detection_dataframe(gt_detect[sframe])
     except:
         empty_gt = True
 
@@ -50,6 +51,49 @@ def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
     acc, frame_id = update_accumulator(acc, gt_object_ids, det_object_ids, distances)
 
     return acc, frame_id
+
+
+# def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
+#     sframe = str(frame+1)
+
+#     empty_gt = False
+
+#     try:
+#         gt_detections_pd = get_detection_dataframe(gt_detect[sframe], iclLineAndUpdate = False, firstFrame = True)
+#     except:
+#         empty_gt = True
+
+#     det_detections_pd = detections[frame]
+    
+#     gt_object_ids = []
+#     gt_objects_boxes = []
+
+#     if empty_gt == False:
+#         for track in gt_detections_pd['track']:
+#             gt_object_ids.append(track)
+#             x = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().xtl
+#             y = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().ytl
+#             w = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().w
+#             h = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().h
+#             gt_objects_boxes.append([x, y, w, h])
+#     else:
+#         gt_objects_boxes = []
+
+#     det_object_ids = []
+#     det_objects_boxes = []
+#     for track in det_detections_pd['track']:
+#         det_object_ids.append(track)
+#         x = det_detections_pd[det_detections_pd['track'] == track].detection.item().xtl
+#         y = det_detections_pd[det_detections_pd['track'] == track].detection.item().ytl
+#         w = det_detections_pd[det_detections_pd['track'] == track].detection.item().w
+#         h = det_detections_pd[det_detections_pd['track'] == track].detection.item().h
+#         det_objects_boxes.append([x, y, w, h])
+
+#     distances = mm.distances.iou_matrix(gt_objects_boxes, det_objects_boxes, max_iou)
+
+#     acc, frame_id = update_accumulator(acc, gt_object_ids, det_object_ids, distances)
+
+#     return acc, frame_id
 
 def voc_ap(rec, prec, use_07_metric=True):
     """Compute VOC AP given precision and recall. If use_07_metric is true, uses
