@@ -169,10 +169,27 @@ def get_detection_dataframe(detections, iclLineAndUpdate = True, firstFrame = Fa
             'colour': colours,
         }
     detections_pd = pd.DataFrame(detec)
-    detections_pd = detections_pd.sort_values(by=['size'], ascending=False)
+    # detections_pd = detections_pd.sort_values(by=['size'], ascending=False)
     detections_pd = detections_pd.reset_index(drop=True)
     
     return detections_pd
+
+def get_gt_detection_dataframe(gt_detections):
+    bdetections = []
+    tracks = []
+
+    for detection in gt_detections:
+        tracks.append(detection.ID)
+        bdetections.append(detection)
+
+    detec = {
+        'track': tracks,
+        'detection': bdetections
+    }
+
+    gt_detections_pd = pd.DataFrame(detec)
+
+    return gt_detections_pd
 
 def drawTrackingOnImage(img, bbox, track=0, line=[], colour=(0, 255, 0), showTracking = True):
     b, g, r = colour
