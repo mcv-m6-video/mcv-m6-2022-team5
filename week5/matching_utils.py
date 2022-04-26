@@ -10,9 +10,9 @@ warnings.filterwarnings('ignore')
 import pandas as pd
 
 def init_global_track_ids_df():
-    track_ids = []
-    detection_frames = []
-    global_track_ids_df = pd.DataFrame()
+    data = []
+    global_track_ids_df = pd.DataFrame(data, columns=['track_ids', 'detection_frames'])
+    return global_track_ids_df
 
 def get_metric_learning_model():
     save_path = 'aicity_cars_metric_learning_results/metric_learning_ResNet18_sgd_TripletMarginLoss.pth'
@@ -52,18 +52,36 @@ def get_metric_distance(model, img1, img2):
 
     return distance
 
-## create and add new global track id
-def add_global_track_ids(global_track_ids_df, detection):
+def get_detected_box_image(img, bbox):
+    img = np.asarray(img)
 
+    for index, b in enumerate(bbox):
+        if b < 0:
+            bbox[index] = 0
+
+    if img is not None:
+        crop = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        return crop
+
+    print('Failed to read!!')
+    return None
+
+## create and add new global track id
+def add_global_track_ids(global_track_ids_df, img, detection):
+    crop = get_detected_box_image(img, detection['bbox'])
+    row = {'track_ids': detection['track'], 'detection_frames': [crop]}
+    global_track_ids_df = global_track_ids_df.append(row,ignore_index=True)
+
+    return global_track_ids_df
 
 ## add frames to exisiting track
-def update_global_track_id(global_track_ids_df, detection, track_id):
+def update_global_track_id(global_track_ids_df, img, detection):
+    crop = get_detected_box_image(img, detection['bbox'])
 
+    index = global_track_ids_df.index[global_track_ids_df['track_ids'] == detection['track']].tolist()[0]
 
-## perform matching with exisiting ids
-def get_global_track_id(detection):
+    detection_frames_list = global_track_ids_df.at[index, 'detection_frames']
+    detection_frames_list.append(crop)
+    global_track_ids_df.at[index, 'detection_frames'] = detection_frames_list
 
-    return track_id
-
-def get_global_track_id_df():
     return global_track_ids_df

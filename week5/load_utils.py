@@ -98,3 +98,5 @@ def buildTrackCarsDataset():
 
                         pathlib.Path(f'aicity_cars_dataset/{id}/').mkdir(parents=True, exist_ok=True)
                         cv2.imwrite(f'aicity_cars_dataset/{id}/{seq}_{cam}_{frame_num}.png', crop)
+
+                        
