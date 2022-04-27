@@ -28,6 +28,7 @@ def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
     if empty_gt == False:
         for track in gt_detections_pd['track']:
             gt_object_ids.append(track)
+
             x = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().xtl
             y = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().ytl
             w = gt_detections_pd[gt_detections_pd['track'] == track].detection.item().w
@@ -40,10 +41,10 @@ def tracking_acc(frame, gt_detect, detections, acc, max_iou=1):
     det_objects_boxes = []
     for track in det_detections_pd['track']:
         det_object_ids.append(track)
-        x = det_detections_pd[det_detections_pd['track'] == track].detection.item().xtl
-        y = det_detections_pd[det_detections_pd['track'] == track].detection.item().ytl
-        w = det_detections_pd[det_detections_pd['track'] == track].detection.item().w
-        h = det_detections_pd[det_detections_pd['track'] == track].detection.item().h
+        x = det_detections_pd[det_detections_pd['track'] == track].iloc[0].detection.xtl
+        y = det_detections_pd[det_detections_pd['track'] == track].iloc[0].detection.ytl
+        w = det_detections_pd[det_detections_pd['track'] == track].iloc[0].detection.w
+        h = det_detections_pd[det_detections_pd['track'] == track].iloc[0].detection.h
         det_objects_boxes.append([x, y, w, h])
 
     distances = mm.distances.iou_matrix(gt_objects_boxes, det_objects_boxes, max_iou)
