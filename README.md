@@ -46,3 +46,12 @@
     * T2.1 Evaluate MTSC on SEQ 3
     * T2.2 Evaluate MTSC on SEQ 1 & SEQ 4
 
+## Week 5
+* T2 Multi-target single-camera (MTSC) tracking
+    * T1.1 Evaluate MTSC on SEQ 3
+    * T1.2 Evaluate MTSC on SEQ 1 & SEQ 4
+* T2 Multi-target multi-camera (MTMC) tracking
+    * T2.1 Evaluate MTMC on SEQ 3
+    * T2.2 Evaluate MTMC on SEQ 1 & SEQ 4
+### [Final Presentation](https://docs.google.com/presentation/d/1dAohyvVWGlya8H8b0kqEYd-N8TJpXlCbGuzvDgQLcpg/edit?usp=sharing)
+

@@ -54,6 +54,23 @@ def remove_overlaps(detections_pd, tolerance=0.9):
         
     return detections_pd
 
+def remove_overlaps2(detections, tolerance = 0.8):
+    detects_to_remove = []
+    for i, detection in enumerate(detections):
+        detlen = len(detections)
+        detects_to_remove = []
+        for j in range(detlen):
+            if j != i:
+                IoU = detection.IoU(detections[j])
+                if IoU > tolerance and IoU < 1:
+                    if detection.conf > detections[j].conf:
+                        detects_to_remove.append(detections[j])
+                    else:
+                        detects_to_remove.append(detection)
+    for bad_detection in detects_to_remove:
+        detections.remove(bad_detection)
+    return detections
+
 
 def update_track(detections_pd, next_detections_pd, tolerance=0.5, imgs=None):
     detections_pd['updated'] = False
@@ -200,3 +217,24 @@ def drawTrackingOnImage(img, bbox, track=0, line=[], colour=(0, 255, 0), showTra
         for i in range(1, len(line)):
             img = cv2.line(img, line[i - 1], line[i], (int(b), int(g), int(r)), 3)
     return img
+
+def calculate_center(detection, raw_detect = False):
+    if raw_detect == False:
+        center_x = int(detection['detection'].xtl + (detection['detection'].xbr - detection['detection'].xtl)/2)
+        center_y = int(detection['detection'].ytl + (detection['detection'].ybr - detection['detection'].ytl)/2)
+    else:
+        center_x = int(detection.xtl + (detection.xbr - detection.xtl)/2)
+        center_y = int(detection.ytl + (detection.ybr - detection.ytl)/2)
+    return center_x, center_y
+
+def remove_outROI(detections, roi_path):
+    detects_to_remove = []
+    roi = cv2.imread(roi_path, cv2.IMREAD_GRAYSCALE)
+    for i, detection in enumerate(detections):
+        detects_to_remove = []
+        center_x, center_y = calculate_center(detection, True)
+        if roi[center_y, center_x] == 0:
+            detects_to_remove.append(detection)
+
+    for bad_detection in detects_to_remove:
+        detections.remove(bad_detection)
