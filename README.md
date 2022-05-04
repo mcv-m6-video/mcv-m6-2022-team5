@@ -53,5 +53,6 @@
 * T2 Multi-target multi-camera (MTMC) tracking
     * T2.1 Evaluate MTMC on SEQ 3
     * T2.2 Evaluate MTMC on SEQ 1 & SEQ 4
-### [Final Presentation](https://docs.google.com/presentation/d/1dAohyvVWGlya8H8b0kqEYd-N8TJpXlCbGuzvDgQLcpg/edit?usp=sharing)
+### [Final Presentation](https://docs.google.com/presentation/d/1dAohyvVWGlya8H8b0kqEYd-N8TJpXlCbGuzvDgQLcpg/edit?usp=sharing)  
+### [Final Report](https://github.com/mcv-m6-video/mcv-m6-2022-team5/blob/main/M6_Video_Surveillance_for_Road_Traffic_Monitoring.pdf)
 
